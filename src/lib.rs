@@ -9,11 +9,21 @@
 //!
 //! [pread]: http://man7.org/linux/man-pages/man2/pread.2.html
 //!
+//! # Preview release!
+//!
+//! This is a preview release of [positioned-io](https://docs.rs/positioned-io).
+//! All examples assume you are using it as:
+//!
+//! ```
+//! extern crate positioned_io_preview as positioned_io;
+//! ```
+//!
 //! # Examples
 //!
 //! Read the fifth 512-byte sector of a file:
 //!
 //! ```
+//! # use positioned_io_preview as positioned_io;
 //! # use std::error::Error;
 //! #
 //! # fn try_main() -> Result<(), Box<Error>> {
@@ -42,11 +52,14 @@
 //! Write an integer to the middle of a file:
 //!
 //! ```no_run
-//! # extern crate positioned_io;
+//! # extern crate positioned_io_preview as positioned_io;
+//! # #[cfg(feature = "byteorder")]
 //! # extern crate byteorder;
 //! # use std::io;
 //! #
 //! # fn try_main() -> io::Result<()> {
+//! # #[cfg(feature = "byteorder")]
+//! # {
 //! use std::fs::OpenOptions;
 //! use positioned_io::WriteAt;
 //! use byteorder::{ByteOrder, LittleEndian};
@@ -58,6 +71,7 @@
 //! // write it to the file
 //! let mut file = OpenOptions::new().write(true).open("foo.data")?;
 //! file.write_all_at(1 << 20, &buf)?;
+//! # }
 //! #     Ok(())
 //! # }
 //! # fn main() {
@@ -68,17 +82,21 @@
 //! Or, more simply:
 //!
 //! ```no_run
-//! # extern crate positioned_io;
+//! # extern crate positioned_io_preview as positioned_io;
+//! # #[cfg(feature = "byteorder")]
 //! # extern crate byteorder;
 //! # use std::io;
 //! #
 //! # fn try_main() -> io::Result<()> {
+//! # #[cfg(feature = "byteorder")]
+//! # {
 //! use std::fs::OpenOptions;
 //! use byteorder::LittleEndian;
 //! use positioned_io::WriteBytesAtExt;
 //!
 //! let mut file = OpenOptions::new().write(true).open("foo.data")?;
 //! file.write_u32_at::<LittleEndian>(1 << 20, 1234)?;
+//! # }
 //! #     Ok(())
 //! # }
 //! # fn main() {
@@ -89,17 +107,21 @@
 //! Read from anything else that supports `ReadAt`, like a byte array:
 //!
 //! ```rust
-//! # extern crate positioned_io;
+//! # extern crate positioned_io_preview as positioned_io;
+//! # #[cfg(feature = "byteorder")]
 //! # extern crate byteorder;
 //! # use std::io;
 //! #
 //! # fn try_main() -> io::Result<()> {
+//! # #[cfg(feature = "byteorder")]
+//! {
 //! use byteorder::BigEndian;
 //! use positioned_io::ReadBytesAtExt;
 //!
 //! let buf = [0, 5, 254, 212, 0, 3];
 //! let n = buf.as_ref().read_i16_at::<BigEndian>(2)?;
 //! assert_eq!(n, -300);
+//! # }
 //! #     Ok(())
 //! # }
 //! # fn main() {
@@ -107,11 +129,12 @@
 //! # }
 //! ```
 
-#![doc(html_root_url = "https://docs.rs/positioned-io/0.3.0")]
+#![doc(html_root_url = "https://docs.rs/positioned-io-preview/0.3.3")]
 
 #![warn(missing_debug_implementations)]
 #![warn(bare_trait_objects)]
 
+#[cfg(feature = "byteorder")]
 extern crate byteorder;
 #[cfg(unix)]
 extern crate libc;
@@ -122,7 +145,9 @@ pub use cursor::{Cursor, SizeCursor};
 mod slice;
 pub use slice::Slice;
 
+#[cfg(feature = "byteorder")]
 mod byteio;
+#[cfg(feature = "byteorder")]
 pub use byteio::{ByteIo, ReadBytesAtExt, WriteBytesAtExt};
 
 use std::fs::File;
@@ -140,6 +165,7 @@ use std::io;
 /// Read the fifth 512-byte sector of a file:
 ///
 /// ```
+/// # use positioned_io_preview as positioned_io;
 /// # use std::error::Error;
 /// #
 /// # fn try_main() -> Result<(), Box<Error>> {
@@ -209,6 +235,7 @@ pub trait ReadAt {
 /// # Examples
 ///
 /// ```no_run
+/// # use positioned_io_preview as positioned_io;
 /// # use std::error::Error;
 /// #
 /// # fn try_main() -> Result<(), Box<Error>> {
@@ -283,6 +310,7 @@ pub trait WriteAt {
 /// # Examples
 ///
 /// ```no_run
+/// # use positioned_io_preview as positioned_io;
 /// # use std::error::Error;
 /// #
 /// # fn try_main() -> Result<(), Box<Error>> {
