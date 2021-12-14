@@ -13,7 +13,7 @@ readme = "README.md"
 default = ["byteorder"]
 
 [dependencies]
-byteorder = "1.4"
+byteorder = { version="1.4", optional=true }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
