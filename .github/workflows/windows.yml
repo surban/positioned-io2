@@ -12,15 +12,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Install Rustup using win.rustup.rs
-        run: |
-          $ProgressPreference = "SilentlyContinue"
-          Invoke-WebRequest https://win.rustup.rs/ -OutFile rustup-init.exe
-          .\rustup-init.exe -y
-          del rustup-init.exe
-        shell: powershell
-
       - name: Build
         run: cargo build
       - name: Run tests
