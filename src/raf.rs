@@ -3,11 +3,11 @@ use std::io;
 use std::io::Write;
 #[cfg(windows)]
 use std::io::{Seek, SeekFrom};
-use std::path::Path;
 #[cfg(unix)]
 use std::os::unix::fs::FileExt;
 #[cfg(windows)]
 use std::os::windows::fs::FileExt;
+use std::path::Path;
 
 use super::{ReadAt, WriteAt};
 
@@ -24,11 +24,10 @@ use super::{ReadAt, WriteAt};
 /// Read the fifth 512-byte sector of a file:
 ///
 /// ```
-/// # extern crate positioned_io_preview as positioned_io;
 /// # use std::error::Error;
 /// #
 /// # fn try_main() -> Result<(), Box<Error>> {
-/// use positioned_io::{RandomAccessFile, ReadAt};
+/// use positioned_io2::{RandomAccessFile, ReadAt};
 ///
 /// // open a file (note: binding does not need to be mut)
 /// let raf = RandomAccessFile::open("tests/pi.txt")?;
@@ -66,7 +65,12 @@ impl RandomAccessFile {
     fn try_new_impl(file: File) -> io::Result<RandomAccessFile> {
         unsafe {
             use std::os::unix::io::AsRawFd;
-            libc::posix_fadvise(file.as_raw_fd(), 0, file.metadata()?.len() as i64, libc::POSIX_FADV_RANDOM);
+            libc::posix_fadvise(
+                file.as_raw_fd(),
+                0,
+                file.metadata()?.len() as i64,
+                libc::POSIX_FADV_RANDOM,
+            );
         }
 
         Ok(RandomAccessFile { file })
@@ -101,7 +105,6 @@ impl RandomAccessFile {
         }
     }
 }
-
 
 #[cfg(unix)]
 impl ReadAt for RandomAccessFile {

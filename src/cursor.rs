@@ -18,10 +18,9 @@ use super::{ReadAt, Size, WriteAt};
 /// # Examples
 ///
 /// ```no_run
-/// # extern crate positioned_io_preview as positioned_io;
 /// # use std::io::{self, Result, Read};
 /// # use std::fs::File;
-/// use positioned_io::{ReadAt, Cursor};
+/// use positioned_io2::{ReadAt, Cursor};
 ///
 /// struct NetworkStorage {
 ///     // A remote disk that supports random access.
@@ -111,12 +110,18 @@ impl<I> Seek for Cursor<I> {
             SeekFrom::Current(p) => {
                 let pos = self.pos as i64 + p;
                 if pos < 0 {
-                    return Err(io::Error::new(io::ErrorKind::InvalidInput, "seek to a negative position"));
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidInput,
+                        "seek to a negative position",
+                    ));
                 }
                 self.pos = pos as u64;
             }
             SeekFrom::End(_) => {
-                return Err(io::Error::new(io::ErrorKind::InvalidInput, "seek from unknown end"))
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "seek from unknown end",
+                ))
             }
         }
         Ok(self.pos)
@@ -170,7 +175,7 @@ impl<I: Size> SizeCursor<I> {
     #[inline]
     pub fn new_pos(io: I, pos: u64) -> Self {
         SizeCursor {
-            cursor: Cursor::new_pos(io, pos)
+            cursor: Cursor::new_pos(io, pos),
         }
     }
 
@@ -180,7 +185,7 @@ impl<I: Size> SizeCursor<I> {
     #[inline]
     pub fn new(io: I) -> Self {
         SizeCursor {
-            cursor: Cursor::new(io)
+            cursor: Cursor::new(io),
         }
     }
 
@@ -250,15 +255,16 @@ impl<I: Size> Seek for SizeCursor<I> {
         let pos = match pos {
             SeekFrom::Start(p) => p as i64,
             SeekFrom::Current(p) => self.cursor.pos as i64 + p,
-            SeekFrom::End(p) => {
-                match self.get_ref().size() {
-                    Err(e) => return Err(e),
-                    Ok(None) => {
-                        return Err(io::Error::new(io::ErrorKind::InvalidData, "seek from unknown end"))
-                    }
-                    Ok(Some(s)) => s as i64 + p,
+            SeekFrom::End(p) => match self.get_ref().size() {
+                Err(e) => return Err(e),
+                Ok(None) => {
+                    return Err(io::Error::new(
+                        io::ErrorKind::InvalidData,
+                        "seek from unknown end",
+                    ))
                 }
-            }
+                Ok(Some(s)) => s as i64 + p,
+            },
         };
         self.cursor.pos = pos as u64;
         Ok(self.cursor.pos)

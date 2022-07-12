@@ -1,6 +1,6 @@
-use std::marker::PhantomData;
 use std::io;
 use std::io::{Read, Write};
+use std::marker::PhantomData;
 
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
 
@@ -16,11 +16,10 @@ use super::{ReadAt, WriteAt};
 /// Read an integer from the middle of a byte array:
 ///
 /// ```rust
-/// # extern crate positioned_io_preview as positioned_io;
 /// # extern crate byteorder;
 /// # use std::io;
 /// use byteorder::BigEndian;
-/// use positioned_io::ReadBytesAtExt;
+/// use positioned_io2::ReadBytesAtExt;
 ///
 /// # fn try_main() -> io::Result<()> {
 /// let buf = [0, 5, 254, 212, 0, 3];
@@ -140,11 +139,10 @@ pub trait ReadBytesAtExt: ReadAt {
 /// Write an integer to the middle of a byte array:
 ///
 /// ```rust
-/// # extern crate positioned_io_preview as positioned_io;
 /// # extern crate byteorder;
 /// # use std::io;
 /// use byteorder::BigEndian;
-/// use positioned_io::WriteBytesAtExt;
+/// use positioned_io2::WriteBytesAtExt;
 ///
 /// # fn try_main() -> io::Result<()> {
 /// let mut buf = [0; 6];
@@ -263,13 +261,12 @@ impl<W: WriteAt> WriteBytesAtExt for W {}
 ///
 /// ```rust
 /// # extern crate byteorder;
-/// # extern crate positioned_io_preview as positioned_io;
 /// #
 /// # use std::io;
 /// #
 /// # fn try_main() -> io::Result<()> {
 /// use byteorder::BigEndian;
-/// use positioned_io::ByteIo;
+/// use positioned_io2::ByteIo;
 ///
 /// let mut buf = [0; 8];
 ///
@@ -303,10 +300,9 @@ impl<I, E: ByteOrder> ByteIo<I, E> {
     /// # Examples
     ///
     /// ```rust
-    /// # extern crate positioned_io_preview as positioned_io;
     /// # extern crate byteorder;
     /// use byteorder::BigEndian;
-    /// use positioned_io::ByteIo;
+    /// use positioned_io2::ByteIo;
     ///
     /// # fn main() {
     /// let buf = [0; 10];
@@ -316,7 +312,10 @@ impl<I, E: ByteOrder> ByteIo<I, E> {
     /// ```
     #[inline]
     pub fn new(io: I) -> Self {
-        ByteIo { io, endianness: PhantomData }
+        ByteIo {
+            io,
+            endianness: PhantomData,
+        }
     }
 
     /// Returns the underlying reader or writer.

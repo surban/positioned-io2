@@ -1,5 +1,5 @@
-positioned-io
-=============
+positioned-io2
+==============
 
 This crate allows you to specify an offset for reads and writes, without changing the current
 position in a file. This is similar to [`pread()` and `pwrite()`][pread] in C.
@@ -11,10 +11,13 @@ The major advantages of this type of I/O are:
 
 [pread]: http://man7.org/linux/man-pages/man2/pread.2.html
 
-[![Build Status](https://travis-ci.org/vasi/positioned-io.svg?branch=master)](https://travis-ci.org/vasi/positioned-io)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/walpg9hx45benhia?svg=true)](https://ci.appveyor.com/project/niklasf/positioned-io)
-[![Crates.io](https://img.shields.io/crates/v/positioned-io.svg)](https://crates.io/crates/positioned-io)
-[![Documentation](https://docs.rs/positioned-io-preview/badge.svg)](https://docs.rs/positioned-io-preview)
+[![Crates.io](https://img.shields.io/crates/v/positioned-io2.svg)](https://crates.io/crates/positioned-io2)
+[![Documentation](https://docs.rs/positioned-io2/badge.svg)](https://docs.rs/positioned-io2)
+
+Fork
+----
+
+This is a fork of [positioned-io](https://github.com/vasi/positioned-io), which seem to have become unmaintained.
 
 Example
 -------
@@ -33,34 +36,14 @@ let mut buf = [0; 512];
 let bytes_read = file.read_at(2048, &mut buf)?;
 ```
 
-**Note:** If possible use the `RandomAccessFile` wrapper. On Windows `ReadAt`
-directly on `File` is very slow.
+**Note:** If possible use the `RandomAccessFile` wrapper. On Windows `ReadAt` directly on `File` is very slow.
 
 Documentation
 -------------
 
-https://docs.rs/positioned-io-preview
-
-Preview release!
-----------------
-
-This is a preview release of [positioned-io](https://crates.io/positioned-io).
-Add it to your `Cargo.toml` like so:
-
-```toml
-[dependencies]
-positioned-io-preview = "0.3"
-```
-
-All examples assume you are using it as:
-
-```rust
-extern crate positioned_io_preview as positioned_io;
-```
-
-Or check out the [preview branch](https://github.com/vasi/positioned-io/tree/positioned-io-preview#preview-release).
+https://docs.rs/positioned2
 
 License
 -------
 
-positioned-io is licensed under the [MIT license](https://github.com/vasi/positioned-io/blob/master/LICENSE-MIT).
+positioned-io2 is licensed under the [MIT license](https://github.com/surban/positioned-io2/blob/master/LICENSE-MIT).

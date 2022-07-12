@@ -1,20 +1,22 @@
 extern crate winapi;
 
+use std::cmp::min;
 use std::fs::File;
 use std::io;
-use std::io::{Write, Seek, SeekFrom};
+use std::io::{Seek, SeekFrom, Write};
 use std::mem;
-use std::ptr;
-use std::cmp::min;
 use std::os::windows::fs::FileExt;
 use std::os::windows::io::AsRawHandle;
+use std::ptr;
 
 use self::winapi::shared::basetsd::SIZE_T;
 use self::winapi::shared::minwindef::{BOOL, DWORD};
 use self::winapi::um::handleapi::CloseHandle;
+use self::winapi::um::memoryapi::{
+    CreateFileMappingW, MapViewOfFile, UnmapViewOfFile, FILE_MAP_READ,
+};
 use self::winapi::um::sysinfoapi::GetSystemInfo;
 use self::winapi::um::winnt::{HANDLE, PAGE_READONLY};
-use self::winapi::um::memoryapi::{CreateFileMappingW, MapViewOfFile, UnmapViewOfFile, FILE_MAP_READ};
 
 use super::{ReadAt, WriteAt};
 

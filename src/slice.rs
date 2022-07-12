@@ -1,7 +1,7 @@
 use std::cmp::min;
 use std::io;
 
-use super::{ReadAt, WriteAt, Size};
+use super::{ReadAt, Size, WriteAt};
 
 /// A window into another `ReadAt` or `WriteAt`.
 ///
@@ -12,9 +12,8 @@ use super::{ReadAt, WriteAt, Size};
 /// Some slices have size restrictions:
 ///
 /// ```rust
-/// # use positioned_io_preview as positioned_io;
 /// # use std::io;
-/// use positioned_io::{ReadAt, Slice};
+/// use positioned_io2::{ReadAt, Slice};
 ///
 /// # fn foo() -> io::Result<()> {
 /// let a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -32,9 +31,8 @@ use super::{ReadAt, WriteAt, Size};
 /// Some slices do not:
 ///
 /// ```rust
-/// # use positioned_io_preview as positioned_io;
 /// # use std::io;
-/// use positioned_io::{WriteAt, Slice};
+/// use positioned_io2::{WriteAt, Slice};
 ///
 /// # fn foo() -> io::Result<()> {
 /// let mut v = vec![0, 1, 2, 3, 4, 5];
@@ -84,7 +82,10 @@ impl<I: Size> Slice<I> {
     pub fn new_to_end(io: I, offset: u64) -> io::Result<Self> {
         match io.size() {
             Ok(Some(size)) => Ok(Self::new(io, offset, Some(size - offset))),
-            _ => Err(io::Error::new(io::ErrorKind::InvalidData, "unknown base size")),
+            _ => Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "unknown base size",
+            )),
         }
     }
 }

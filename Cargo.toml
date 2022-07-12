@@ -1,31 +1,39 @@
 [package]
-name = "positioned-io-preview"
-version = "0.3.3" # remember to update html_root_url and readme
-authors = ["Dave Vasilevsky <dave@vasilevsky.ca>", "Niklas Fiekas <niklas.fiekas@backscattering.de>"]
+name = "positioned-io2"
+version = "0.3.3"
+authors = [
+    "Dave Vasilevsky <dave@vasilevsky.ca>",
+    "Niklas Fiekas <niklas.fiekas@backscattering.de>",
+    "Sebastian Urban <surban@surban.net>",
+]
 description = "Reading and writing at an offset"
 keywords = ["read", "offset", "pread", "pwrite", "endian"]
 categories = ["filesystem", "os"]
 license = "MIT"
-repository = "https://github.com/vasi/positioned-io"
+repository = "https://github.com/surban/positioned-io2"
 readme = "README.md"
 
 [features]
 default = ["byteorder"]
 
 [dependencies]
-byteorder = { version="1.4", optional=true }
+byteorder = { version = "1.4", optional = true }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3", features = ["basetsd", "minwindef", "handleapi", "fileapi", "sysinfoapi", "memoryapi", "winnt"] }
+winapi = { version = "0.3", features = [
+    "basetsd",
+    "minwindef",
+    "handleapi",
+    "fileapi",
+    "sysinfoapi",
+    "memoryapi",
+    "winnt",
+] }
 
 [dev-dependencies]
 quickcheck = "0.9"
 rand = "0.7"
 tempfile = "3.0"
-
-[badges]
-travis-ci = { repository = "vasi/positioned-io", branch = "master" }
-appveyor = { repository = "niklasf/positioned-io" }

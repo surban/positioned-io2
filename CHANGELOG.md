@@ -1,3 +1,6 @@
+# [0.3.4] - 2022-07-12
+* release as positioned-io2
+
 # [0.3.0] - 2018-09-12
 
 * Renamed `{Read,Write}BytesExt` to `{Read,Write}BytesAtExt` to avoid overlap

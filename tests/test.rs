@@ -5,15 +5,15 @@ use std::str;
 
 #[cfg(feature = "byteorder")]
 extern crate byteorder;
-extern crate positioned_io_preview as positioned_io;
+extern crate positioned_io2;
 extern crate tempfile;
 #[cfg(feature = "byteorder")]
 use self::byteorder::LittleEndian;
 
-use positioned_io::{Cursor, RandomAccessFile, ReadAt, Size, SizeCursor, Slice, WriteAt};
+use positioned_io2::{Cursor, RandomAccessFile, ReadAt, Size, SizeCursor, Slice, WriteAt};
 
 #[cfg(feature = "byteorder")]
-use positioned_io::ByteIo;
+use positioned_io2::ByteIo;
 
 #[test]
 fn test_read_at() {

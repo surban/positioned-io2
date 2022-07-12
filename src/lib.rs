@@ -9,26 +9,16 @@
 //!
 //! [pread]: http://man7.org/linux/man-pages/man2/pread.2.html
 //!
-//! # Preview release!
-//!
-//! This is a preview release of [positioned-io](https://docs.rs/positioned-io).
-//! All examples assume you are using it as:
-//!
-//! ```
-//! extern crate positioned_io_preview as positioned_io;
-//! ```
-//!
 //! # Examples
 //!
 //! Read the fifth 512-byte sector of a file:
 //!
 //! ```
-//! # use positioned_io_preview as positioned_io;
 //! # use std::error::Error;
 //! #
 //! # fn try_main() -> Result<(), Box<Error>> {
 //! use std::fs::File;
-//! use positioned_io::ReadAt;
+//! use positioned_io2::ReadAt;
 //!
 //! // note that file does not need to be mut
 //! let file = File::open("tests/pi.txt")?;
@@ -52,7 +42,6 @@
 //! Write an integer to the middle of a file:
 //!
 //! ```no_run
-//! # extern crate positioned_io_preview as positioned_io;
 //! # #[cfg(feature = "byteorder")]
 //! # extern crate byteorder;
 //! # use std::io;
@@ -61,7 +50,7 @@
 //! # #[cfg(feature = "byteorder")]
 //! # {
 //! use std::fs::OpenOptions;
-//! use positioned_io::WriteAt;
+//! use positioned_io2::WriteAt;
 //! use byteorder::{ByteOrder, LittleEndian};
 //!
 //! // put the integer in a buffer
@@ -82,7 +71,6 @@
 //! Or, more simply:
 //!
 //! ```no_run
-//! # extern crate positioned_io_preview as positioned_io;
 //! # #[cfg(feature = "byteorder")]
 //! # extern crate byteorder;
 //! # use std::io;
@@ -92,7 +80,7 @@
 //! # {
 //! use std::fs::OpenOptions;
 //! use byteorder::LittleEndian;
-//! use positioned_io::WriteBytesAtExt;
+//! use positioned_io2::WriteBytesAtExt;
 //!
 //! let mut file = OpenOptions::new().write(true).open("foo.data")?;
 //! file.write_u32_at::<LittleEndian>(1 << 20, 1234)?;
@@ -107,7 +95,6 @@
 //! Read from anything else that supports `ReadAt`, like a byte array:
 //!
 //! ```rust
-//! # extern crate positioned_io_preview as positioned_io;
 //! # #[cfg(feature = "byteorder")]
 //! # extern crate byteorder;
 //! # use std::io;
@@ -116,7 +103,7 @@
 //! # #[cfg(feature = "byteorder")]
 //! {
 //! use byteorder::BigEndian;
-//! use positioned_io::ReadBytesAtExt;
+//! use positioned_io2::ReadBytesAtExt;
 //!
 //! let buf = [0, 5, 254, 212, 0, 3];
 //! let n = buf.as_ref().read_i16_at::<BigEndian>(2)?;
@@ -130,7 +117,6 @@
 //! ```
 
 #![doc(html_root_url = "https://docs.rs/positioned-io-preview/0.3.3")]
-
 #![warn(missing_debug_implementations)]
 #![warn(bare_trait_objects)]
 
@@ -165,12 +151,11 @@ use std::io;
 /// Read the fifth 512-byte sector of a file:
 ///
 /// ```
-/// # use positioned_io_preview as positioned_io;
 /// # use std::error::Error;
 /// #
 /// # fn try_main() -> Result<(), Box<Error>> {
 /// use std::fs::File;
-/// use positioned_io::ReadAt;
+/// use positioned_io2::ReadAt;
 ///
 /// // note that file does not need to be mut
 /// let file = File::open("tests/pi.txt")?;
@@ -217,7 +202,10 @@ pub trait ReadAt {
             }
         }
         if !buf.is_empty() {
-            Err(io::Error::new(io::ErrorKind::UnexpectedEof, "failed to fill whole buffer"))
+            Err(io::Error::new(
+                io::ErrorKind::UnexpectedEof,
+                "failed to fill whole buffer",
+            ))
         } else {
             Ok(())
         }
@@ -235,12 +223,11 @@ pub trait ReadAt {
 /// # Examples
 ///
 /// ```no_run
-/// # use positioned_io_preview as positioned_io;
 /// # use std::error::Error;
 /// #
 /// # fn try_main() -> Result<(), Box<Error>> {
 /// use std::fs::OpenOptions;
-/// use positioned_io::WriteAt;
+/// use positioned_io2::WriteAt;
 ///
 /// let mut file = OpenOptions::new().write(true).open("tests/pi.txt")?;
 ///
@@ -273,7 +260,12 @@ pub trait WriteAt {
     fn write_all_at(&mut self, mut pos: u64, mut buf: &[u8]) -> io::Result<()> {
         while !buf.is_empty() {
             match self.write_at(pos, buf) {
-                Ok(0) => return Err(io::Error::new(io::ErrorKind::WriteZero, "failed to write whole buffer")),
+                Ok(0) => {
+                    return Err(io::Error::new(
+                        io::ErrorKind::WriteZero,
+                        "failed to write whole buffer",
+                    ))
+                }
                 Ok(n) => {
                     buf = &buf[n..];
                     pos += n as u64;
@@ -310,12 +302,11 @@ pub trait WriteAt {
 /// # Examples
 ///
 /// ```no_run
-/// # use positioned_io_preview as positioned_io;
 /// # use std::error::Error;
 /// #
 /// # fn try_main() -> Result<(), Box<Error>> {
 /// use std::fs::File;
-/// use positioned_io::Size;
+/// use positioned_io2::Size;
 ///
 /// let file = File::open("tests/pi.txt")?;
 /// let size = file.size()?;
@@ -365,8 +356,8 @@ pub use raf::RandomAccessFile;
 
 // Implementation for arrays, vectors.
 mod array;
-mod vec;
 mod refs;
+mod vec;
 
 #[cfg(test)]
 mod tests {
