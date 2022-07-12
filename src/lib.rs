@@ -101,7 +101,7 @@
 //! #
 //! # fn try_main() -> io::Result<()> {
 //! # #[cfg(feature = "byteorder")]
-//! {
+//! # {
 //! use byteorder::BigEndian;
 //! use positioned_io2::ReadBytesAtExt;
 //!

@@ -26,7 +26,7 @@ Read the fifth 512-byte sector of a file:
 
 ```rust
 use std::fs::File;
-use positioned_io::ReadAt;
+use positioned_io2::ReadAt;
 
 // note that file does not need to be mut
 let file = File::open("tests/pi.txt")?;
@@ -37,11 +37,6 @@ let bytes_read = file.read_at(2048, &mut buf)?;
 ```
 
 **Note:** If possible use the `RandomAccessFile` wrapper. On Windows `ReadAt` directly on `File` is very slow.
-
-Documentation
--------------
-
-https://docs.rs/positioned2
 
 License
 -------
