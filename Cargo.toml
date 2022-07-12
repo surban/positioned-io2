@@ -1,6 +1,6 @@
 [package]
 name = "positioned-io2"
-version = "0.3.3"
+version = "0.3.4"
 authors = [
     "Dave Vasilevsky <dave@vasilevsky.ca>",
     "Niklas Fiekas <niklas.fiekas@backscattering.de>",
