@@ -1,5 +1,4 @@
-use std::cmp::min;
-use std::io;
+use core::cmp::min;
 
 use super::{ReadAt, Size, WriteAt};
 
@@ -79,11 +78,11 @@ impl<I: Size> Slice<I> {
     ///
     /// Note that you can create a larger slice by passing a larger size to
     /// `new()`, but it won't do you any good for reading.
-    pub fn new_to_end(io: I, offset: u64) -> io::Result<Self> {
+    pub fn new_to_end(io: I, offset: u64) -> acid_io::Result<Self> {
         match io.size() {
             Ok(Some(size)) => Ok(Self::new(io, offset, Some(size - offset))),
-            _ => Err(io::Error::new(
-                io::ErrorKind::InvalidData,
+            _ => Err(acid_io::Error::new(
+                acid_io::ErrorKind::InvalidData,
                 "unknown base size",
             )),
         }
@@ -91,25 +90,25 @@ impl<I: Size> Slice<I> {
 }
 
 impl<I: ReadAt> ReadAt for Slice<I> {
-    fn read_at(&self, pos: u64, buf: &mut [u8]) -> io::Result<usize> {
+    fn read_at(&self, pos: u64, buf: &mut [u8]) -> acid_io::Result<usize> {
         let bytes = self.avail(pos, buf.len());
         self.io.read_at(pos + self.offset, &mut buf[..bytes])
     }
 }
 
 impl<I: WriteAt> WriteAt for Slice<I> {
-    fn write_at(&mut self, pos: u64, buf: &[u8]) -> io::Result<usize> {
+    fn write_at(&mut self, pos: u64, buf: &[u8]) -> acid_io::Result<usize> {
         let bytes = self.avail(pos, buf.len());
         self.io.write_at(pos + self.offset, &buf[..bytes])
     }
 
-    fn flush(&mut self) -> io::Result<()> {
+    fn flush(&mut self) -> acid_io::Result<()> {
         self.io.flush()
     }
 }
 
 impl<I> Size for Slice<I> {
-    fn size(&self) -> io::Result<Option<u64>> {
+    fn size(&self) -> acid_io::Result<Option<u64>> {
         Ok(self.size)
     }
 }
