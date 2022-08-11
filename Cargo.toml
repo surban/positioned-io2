@@ -8,16 +8,18 @@ authors = [
 ]
 description = "Reading and writing at an offset"
 keywords = ["read", "offset", "pread", "pwrite", "endian"]
-categories = ["filesystem", "os"]
+categories = ["filesystem", "os", "no-std"]
 license = "MIT"
 repository = "https://github.com/surban/positioned-io2"
 readme = "README.md"
 
 [features]
-default = ["byteorder"]
+default = ["byteorder", "std"]
+std = ["acid_io/std"]
 
 [dependencies]
 byteorder = { version = "1.4", optional = true }
+acid_io = { version = "0.1.0", default-features = false, features = ["alloc"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

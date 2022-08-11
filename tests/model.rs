@@ -1,14 +1,19 @@
-#[macro_use]
+#[cfg_attr(feature = "std", macro_use)]
 extern crate quickcheck;
 extern crate positioned_io2;
 extern crate rand;
 extern crate tempfile;
+#[cfg(feature = "std")]
+extern crate acid_io;
 
+#[cfg(feature = "std")]
 use std::cmp::{max, min};
-use std::io::{Read, Seek, SeekFrom, Write};
+#[cfg(feature = "std")]
+use acid_io::{Read, Seek, SeekFrom, Write};
 
 use self::quickcheck::{Arbitrary, Gen};
 use self::rand::Rng;
+#[cfg(feature = "std")]
 use positioned_io2::{ReadAt, WriteAt};
 
 #[derive(Clone, Debug)]
@@ -34,11 +39,13 @@ impl Arbitrary for Op {
     }
 }
 
+#[cfg(feature = "std")]
 struct Model {
     vec: Vec<u8>,
     pos: usize,
 }
 
+#[cfg(feature = "std")]
 impl Model {
     fn new() -> Model {
         Model {
@@ -72,6 +79,7 @@ impl Model {
     }
 }
 
+#[cfg(feature = "std")]
 quickcheck! {
     fn file_matches_model(ops: Vec<Op>) -> bool {
         let mut file = tempfile::tempfile().unwrap();

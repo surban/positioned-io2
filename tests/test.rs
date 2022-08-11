@@ -1,21 +1,29 @@
 use std::cell::{Cell, RefCell};
+#[cfg(feature = "std")]
 use std::fs::File;
-use std::io::{Error, ErrorKind, Read, Result, Seek, SeekFrom};
+#[cfg(feature = "std")]
+use acid_io::{Error, ErrorKind, Read, Seek, SeekFrom};
+use acid_io::Result;
+#[cfg(feature = "std")]
 use std::str;
 
 #[cfg(feature = "byteorder")]
 extern crate byteorder;
 extern crate positioned_io2;
 extern crate tempfile;
+extern crate acid_io;
 #[cfg(feature = "byteorder")]
 use self::byteorder::LittleEndian;
 
-use positioned_io2::{Cursor, RandomAccessFile, ReadAt, Size, SizeCursor, Slice, WriteAt};
+use positioned_io2::{ReadAt, Size, Slice, WriteAt};
+#[cfg(feature = "std")]
+use positioned_io2::{RandomAccessFile, Cursor, SizeCursor};
 
 #[cfg(feature = "byteorder")]
 use positioned_io2::ByteIo;
 
 #[test]
+#[cfg(feature = "std")]
 fn test_read_at() {
     let file = File::open("tests/pi.txt").unwrap();
     let mut buf = [0; 4];
@@ -24,6 +32,7 @@ fn test_read_at() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_mixed_read() {
     let mut file = File::open("tests/pi.txt").unwrap();
     let mut buf = [0; 4];
@@ -41,6 +50,7 @@ struct ReadCustom<I: ReadAt, F: Fn() -> Result<usize>> {
     fail: Cell<bool>,
     onfail: F,
 }
+#[cfg(feature = "std")]
 impl<I: ReadAt, F: Fn() -> Result<usize>> ReadCustom<I, F> {
     fn new(i: I, f: F) -> Self {
         ReadCustom {
@@ -63,6 +73,7 @@ impl<I: ReadAt, F: Fn() -> Result<usize>> ReadAt for ReadCustom<I, F> {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_read_fails() {
     // Test interrupts.
     let file = File::open("tests/pi.txt").unwrap();
@@ -86,6 +97,7 @@ fn test_read_fails() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_size() {
     let file = File::open("tests/pi.txt").unwrap();
     let size = file.size().unwrap().unwrap();
@@ -93,6 +105,7 @@ fn test_size() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_cursor() {
     let file = File::open("tests/pi.txt").unwrap();
     let mut curs = Cursor::new_pos(file, 10);
@@ -107,6 +120,7 @@ fn test_cursor() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn test_size_cursor() {
     let file = File::open("Cargo.toml").unwrap();
     let mut curs = SizeCursor::new_pos(file, 10);
@@ -261,6 +275,7 @@ fn test_refcell() {
 }
 
 #[test]
+#[cfg(feature = "std")]
 fn shared_refs() {
     let file = tempfile::tempfile().unwrap();
     // no mut

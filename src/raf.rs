@@ -26,7 +26,7 @@ use super::{ReadAt, WriteAt};
 /// ```
 /// # use std::error::Error;
 /// #
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Box<dyn Error>> {
 /// use positioned_io2::{RandomAccessFile, ReadAt};
 ///
 /// // open a file (note: binding does not need to be mut)

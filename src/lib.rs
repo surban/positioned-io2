@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 //! This crate allows you to specify an offset for reads and writes,
 //! without changing the current position in a file. This is similar to
 //! [`pread()` and `pwrite()`][pread] in C.
@@ -14,9 +16,11 @@
 //! Read the fifth 512-byte sector of a file:
 //!
 //! ```
+//! # #[cfg(not(feature = "std"))] fn main() {}
+//! # #[cfg(feature = "std")] fn main() {
 //! # use std::error::Error;
 //! #
-//! # fn try_main() -> Result<(), Box<Error>> {
+//! # fn try_main() -> Result<(), Box<dyn Error>> {
 //! use std::fs::File;
 //! use positioned_io2::ReadAt;
 //!
@@ -30,8 +34,7 @@
 //! #     Ok(())
 //! # }
 //! #
-//! # fn main() {
-//! #     try_main().unwrap();
+//! # try_main().unwrap();
 //! # }
 //! ```
 //!
@@ -124,6 +127,10 @@
 extern crate byteorder;
 #[cfg(unix)]
 extern crate libc;
+extern crate acid_io;
+extern crate alloc;
+#[cfg(feature = "std")]
+extern crate core;
 
 mod cursor;
 pub use cursor::{Cursor, SizeCursor};
@@ -136,8 +143,8 @@ mod byteio;
 #[cfg(feature = "byteorder")]
 pub use byteio::{ByteIo, ReadBytesAtExt, WriteBytesAtExt};
 
-use std::fs::File;
-use std::io;
+mod wrapper;
+pub use wrapper::SeekWrapper;
 
 /// Trait for reading bytes at an offset.
 ///
@@ -151,9 +158,11 @@ use std::io;
 /// Read the fifth 512-byte sector of a file:
 ///
 /// ```
+/// # #[cfg(not(feature = "std"))] fn main() {}
+/// # #[cfg(feature = "std")] fn main() {
 /// # use std::error::Error;
 /// #
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Box<dyn Error>> {
 /// use std::fs::File;
 /// use positioned_io2::ReadAt;
 ///
@@ -167,8 +176,7 @@ use std::io;
 /// #     Ok(())
 /// # }
 /// #
-/// # fn main() {
-/// #     try_main().unwrap();
+/// # try_main().unwrap();
 /// # }
 /// ```
 pub trait ReadAt {
@@ -180,7 +188,7 @@ pub trait ReadAt {
     ///
     /// See [`Read::read()`](https://doc.rust-lang.org/std/io/trait.Read.html#tymethod.read)
     /// for details.
-    fn read_at(&self, pos: u64, buf: &mut [u8]) -> io::Result<usize>;
+    fn read_at(&self, pos: u64, buf: &mut [u8]) -> acid_io::Result<usize>;
 
     /// Reads the exact number of bytes required to fill `buf` from an offset.
     ///
@@ -188,7 +196,7 @@ pub trait ReadAt {
     ///
     /// See [`Read::read_exact()`](https://doc.rust-lang.org/std/io/trait.Read.html#method.read_exact)
     /// for details.
-    fn read_exact_at(&self, mut pos: u64, mut buf: &mut [u8]) -> io::Result<()> {
+    fn read_exact_at(&self, mut pos: u64, mut buf: &mut [u8]) -> acid_io::Result<()> {
         while !buf.is_empty() {
             match self.read_at(pos, buf) {
                 Ok(0) => break,
@@ -197,13 +205,13 @@ pub trait ReadAt {
                     buf = &mut tmp[n..];
                     pos += n as u64;
                 }
-                Err(ref e) if e.kind() == io::ErrorKind::Interrupted => {}
+                Err(ref e) if e.kind() == acid_io::ErrorKind::Interrupted => {}
                 Err(e) => return Err(e),
             }
         }
         if !buf.is_empty() {
-            Err(io::Error::new(
-                io::ErrorKind::UnexpectedEof,
+            Err(acid_io::Error::new(
+                acid_io::ErrorKind::UnexpectedEof,
                 "failed to fill whole buffer",
             ))
         } else {
@@ -223,9 +231,11 @@ pub trait ReadAt {
 /// # Examples
 ///
 /// ```no_run
+/// # #[cfg(not(feature = "std"))] fn main() {}
+/// # #[cfg(feature = "std")] fn main() {
 /// # use std::error::Error;
 /// #
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Box<dyn Error>> {
 /// use std::fs::OpenOptions;
 /// use positioned_io2::WriteAt;
 ///
@@ -236,8 +246,7 @@ pub trait ReadAt {
 /// #     Ok(())
 /// # }
 /// #
-/// # fn main() {
-/// #     try_main().unwrap();
+/// # try_main().unwrap();
 /// # }
 /// ```
 pub trait WriteAt {
@@ -249,7 +258,7 @@ pub trait WriteAt {
     ///
     /// See [`Write::write()`](https://doc.rust-lang.org/std/io/trait.Write.html#tymethod.write)
     /// for details.
-    fn write_at(&mut self, pos: u64, buf: &[u8]) -> io::Result<usize>;
+    fn write_at(&mut self, pos: u64, buf: &[u8]) -> acid_io::Result<usize>;
 
     /// Writes a complete buffer at an offset.
     ///
@@ -257,12 +266,12 @@ pub trait WriteAt {
     ///
     /// See [`Write::write_all()`](https://doc.rust-lang.org/std/io/trait.Write.html#method.write_all)
     /// for details.
-    fn write_all_at(&mut self, mut pos: u64, mut buf: &[u8]) -> io::Result<()> {
+    fn write_all_at(&mut self, mut pos: u64, mut buf: &[u8]) -> acid_io::Result<()> {
         while !buf.is_empty() {
             match self.write_at(pos, buf) {
                 Ok(0) => {
-                    return Err(io::Error::new(
-                        io::ErrorKind::WriteZero,
+                    return Err(acid_io::Error::new(
+                        acid_io::ErrorKind::WriteZero,
                         "failed to write whole buffer",
                     ))
                 }
@@ -270,7 +279,7 @@ pub trait WriteAt {
                     buf = &buf[n..];
                     pos += n as u64;
                 }
-                Err(ref e) if e.kind() == io::ErrorKind::Interrupted => {}
+                Err(ref e) if e.kind() == acid_io::ErrorKind::Interrupted => {}
                 Err(e) => return Err(e),
             }
         }
@@ -289,7 +298,7 @@ pub trait WriteAt {
     /// Use
     /// [`File::sync_data()`](https://doc.rust-lang.org/std/fs/struct.File.html#method.sync_data)
     /// instead.
-    fn flush(&mut self) -> io::Result<()>;
+    fn flush(&mut self) -> acid_io::Result<()>;
 }
 
 /// Trait to get the size in bytes of an I/O object.
@@ -302,9 +311,11 @@ pub trait WriteAt {
 /// # Examples
 ///
 /// ```no_run
+/// # #[cfg(not(feature = "std"))] fn main() {}
+/// # #[cfg(feature = "std")] fn main() {
 /// # use std::error::Error;
 /// #
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Box<dyn Error>> {
 /// use std::fs::File;
 /// use positioned_io2::Size;
 ///
@@ -319,8 +330,7 @@ pub trait WriteAt {
 /// #     Ok(())
 /// # }
 /// #
-/// # fn main() {
-/// #    try_main().unwrap();
+/// # try_main().unwrap();
 /// # }
 /// ```
 pub trait Size {
@@ -328,11 +338,12 @@ pub trait Size {
     ///
     /// This function may return `Ok(None)` if the size is unknown, for example
     /// for pipes.
-    fn size(&self) -> io::Result<Option<u64>>;
+    fn size(&self) -> acid_io::Result<Option<u64>>;
 }
 
-impl Size for File {
-    fn size(&self) -> io::Result<Option<u64>> {
+#[cfg(feature = "std")]
+impl Size for std::fs::File {
+    fn size(&self) -> acid_io::Result<Option<u64>> {
         let md = self.metadata()?;
         if md.is_file() {
             Ok(Some(md.len()))
@@ -343,15 +354,17 @@ impl Size for File {
 }
 
 // Implementation for Unix files.
-#[cfg(unix)]
+#[cfg(all(unix, feature = "std"))]
 mod unix;
 
 // Implementation for Windows files.
-#[cfg(windows)]
+#[cfg(all(windows, feature = "std"))]
 mod windows;
 
 // RandomAccess file wrapper.
+#[cfg(feature = "std")]
 mod raf;
+#[cfg(feature = "std")]
 pub use raf::RandomAccessFile;
 
 // Implementation for arrays, vectors.
@@ -361,6 +374,7 @@ mod vec;
 
 #[cfg(test)]
 mod tests {
+    use alloc::boxed::Box;
     use super::*;
 
     struct _AssertObjectSafe1(Box<dyn ReadAt>);
