@@ -17,6 +17,8 @@ use super::{ReadAt, Size, WriteAt};
 /// # Examples
 ///
 /// ```no_run
+/// # #[cfg(not(feature = "std"))] fn main() {}
+/// # #[cfg(feature = "std")] fn main() {
 /// # use std::io::{self, Result, Read};
 /// # use std::fs::File;
 /// use positioned_io2::{ReadAt, Cursor};
@@ -46,6 +48,7 @@ use super::{ReadAt, Size, WriteAt};
 /// let mut output = File::create("segment.out")?;
 /// io::copy(&mut input, &mut output)?;
 /// # Ok(())
+/// # }
 /// # }
 /// ```
 #[derive(Debug, Clone)]

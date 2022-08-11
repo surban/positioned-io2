@@ -11,7 +11,7 @@ use super::{ReadAt, Size, WriteAt};
 /// Some slices have size restrictions:
 ///
 /// ```rust
-/// # use std::io;
+/// # extern crate acid_io as io;
 /// use positioned_io2::{ReadAt, Slice};
 ///
 /// # fn foo() -> io::Result<()> {
@@ -30,7 +30,7 @@ use super::{ReadAt, Size, WriteAt};
 /// Some slices do not:
 ///
 /// ```rust
-/// # use std::io;
+/// # extern crate acid_io as io;
 /// use positioned_io2::{WriteAt, Slice};
 ///
 /// # fn foo() -> io::Result<()> {

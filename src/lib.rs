@@ -16,9 +16,11 @@
 //! Read the fifth 512-byte sector of a file:
 //!
 //! ```
+//! # #[cfg(not(feature = "std"))] fn main() {}
+//! # #[cfg(feature = "std")] fn main() {
 //! # use std::error::Error;
 //! #
-//! # fn try_main() -> Result<(), Box<Error>> {
+//! # fn try_main() -> Result<(), Box<dyn Error>> {
 //! use std::fs::File;
 //! use positioned_io2::ReadAt;
 //!
@@ -32,8 +34,7 @@
 //! #     Ok(())
 //! # }
 //! #
-//! # fn main() {
-//! #     try_main().unwrap();
+//! # try_main().unwrap();
 //! # }
 //! ```
 //!
@@ -128,6 +129,7 @@ extern crate byteorder;
 extern crate libc;
 extern crate acid_io;
 extern crate alloc;
+#[cfg(feature = "std")]
 extern crate core;
 
 mod cursor;
@@ -153,9 +155,11 @@ pub use byteio::{ByteIo, ReadBytesAtExt, WriteBytesAtExt};
 /// Read the fifth 512-byte sector of a file:
 ///
 /// ```
+/// # #[cfg(not(feature = "std"))] fn main() {}
+/// # #[cfg(feature = "std")] fn main() {
 /// # use std::error::Error;
 /// #
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Box<dyn Error>> {
 /// use std::fs::File;
 /// use positioned_io2::ReadAt;
 ///
@@ -169,8 +173,7 @@ pub use byteio::{ByteIo, ReadBytesAtExt, WriteBytesAtExt};
 /// #     Ok(())
 /// # }
 /// #
-/// # fn main() {
-/// #     try_main().unwrap();
+/// # try_main().unwrap();
 /// # }
 /// ```
 pub trait ReadAt {
@@ -225,9 +228,11 @@ pub trait ReadAt {
 /// # Examples
 ///
 /// ```no_run
+/// # #[cfg(not(feature = "std"))] fn main() {}
+/// # #[cfg(feature = "std")] fn main() {
 /// # use std::error::Error;
 /// #
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Box<dyn Error>> {
 /// use std::fs::OpenOptions;
 /// use positioned_io2::WriteAt;
 ///
@@ -238,8 +243,7 @@ pub trait ReadAt {
 /// #     Ok(())
 /// # }
 /// #
-/// # fn main() {
-/// #     try_main().unwrap();
+/// # try_main().unwrap();
 /// # }
 /// ```
 pub trait WriteAt {
@@ -304,9 +308,11 @@ pub trait WriteAt {
 /// # Examples
 ///
 /// ```no_run
+/// # #[cfg(not(feature = "std"))] fn main() {}
+/// # #[cfg(feature = "std")] fn main() {
 /// # use std::error::Error;
 /// #
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Box<dyn Error>> {
 /// use std::fs::File;
 /// use positioned_io2::Size;
 ///
@@ -321,8 +327,7 @@ pub trait WriteAt {
 /// #     Ok(())
 /// # }
 /// #
-/// # fn main() {
-/// #    try_main().unwrap();
+/// # try_main().unwrap();
 /// # }
 /// ```
 pub trait Size {
@@ -366,6 +371,7 @@ mod vec;
 
 #[cfg(test)]
 mod tests {
+    use alloc::boxed::Box;
     use super::*;
 
     struct _AssertObjectSafe1(Box<dyn ReadAt>);
