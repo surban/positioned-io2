@@ -143,6 +143,9 @@ mod byteio;
 #[cfg(feature = "byteorder")]
 pub use byteio::{ByteIo, ReadBytesAtExt, WriteBytesAtExt};
 
+mod wrapper;
+pub use wrapper::SeekWrapper;
+
 /// Trait for reading bytes at an offset.
 ///
 /// Implementations should be able to read bytes without changing any sort of
